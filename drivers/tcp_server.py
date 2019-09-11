@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import threading
 import socket
 from time import sleep
-from Drivers import handlers
+from drivers import handlers
 
 
 __author__ = "PyARKio"
@@ -11,8 +11,10 @@ __version__ = "1.0.1"
 __email__ = "fedoretss@gmail.com"
 __status__ = "Production"
 
+my_ip = socket.gethostbyname_ex(socket.gethostname())[2][0]
+print(my_ip)
 
-ip = '192.168.1.120'
+ip = '192.168.0.49'
 port = 4040
 
 
@@ -28,7 +30,7 @@ class Thread4Server(threading.Thread):
         self.port = 0
 
         self.acceptThread = Thread4Accept(self.accept_handler, self.accept_error_handler)
-        self.speakThread = []
+        self.speakThread = dict()
 
     def run(self):
         print('START SERVER')
@@ -42,12 +44,14 @@ class Thread4Server(threading.Thread):
 
     def func_connect(self):
         print('Connecting to {}'.format(self.acceptThread.addr))
-        self.speakThread.append(Thread4Speak(self.speak_handler, self.speak_error_handler))
-        self.speakThread[len(self.speakThread) - 1].conn = self.acceptThread.conn
-        self.speakThread[len(self.speakThread) - 1].addr = self.acceptThread.addr
+        self.speakThread[self.acceptThread.addr] = Thread4Speak(self.speak_handler, self.speak_error_handler)
+        self.speakThread[self.acceptThread.addr].conn = self.acceptThread.conn
+        self.speakThread[self.acceptThread.addr].addr = self.acceptThread.addr
 
-        self.speakThread[len(self.speakThread) - 1].flag_run = 1
-        self.speakThread[len(self.speakThread) - 1].start()
+        self.speakThread[self.acceptThread.addr].flag_run = 1
+        self.speakThread[self.acceptThread.addr].start()
+
+        print(self.speakThread)
 
         # 'Number of active clients: %s' % str(len(self.speakThread))
 

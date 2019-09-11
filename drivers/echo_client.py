@@ -2,7 +2,7 @@ import socket
 
 
 def main():
-        host = '192.168.1.120'
+        host = '192.168.0.49'
         port = 4040
 
         mySocket = socket.socket()
@@ -19,6 +19,7 @@ def main():
                 message = input(" -> ")
 
         mySocket.close()
+
 
 if __name__ == '__main__':
     main()

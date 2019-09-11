@@ -5,12 +5,7 @@ import subprocess
 import re
 from time import sleep
 import datetime
-
-
-__author__ = "PyARKio"
-__version__ = "1.0.1"
-__email__ = "fedoretss@gmail.com"
-__status__ = "Production"
+import time
 
 
 # Active: inactive (dead) since Tue 2019-09-10 11:01:27 EEST; 3s ago
@@ -57,6 +52,16 @@ def print_status(status_app, name_service):
 
         if parse_status(number, tmp, name_service=name_service):
             print('>>> {} {}\n'.format(name_service, tmp))
+            # print(subprocess.Popen('cp /var/log/syslog /home/user{}_{}'.format(name_service, tmp.split('since ')[1].split(' EEST;')[0],
+            #                                                                    shell=True, stdout=subprocess.PIPE)))
+            re_tmp = str()
+            for i in tmp.split('since ')[1].split(' EEST;')[0].split(' '):
+                re_tmp += '_{}'.format(i)
+            print(re_tmp)
+            dir_name = '{}{}'.format(name_service, re_tmp)
+
+            print(subprocess.Popen('mkdir /home/user/{}'.format(dir_name), shell=True, stdout=subprocess.PIPE))
+            print(subprocess.Popen('cp /var/log/syslog /home/user/{}'.format(dir_name), shell=True, stdout=subprocess.PIPE))
 
 
 def parse_status(integer, sting, name_service):
