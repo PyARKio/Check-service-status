@@ -7,6 +7,12 @@ from time import sleep
 import datetime
 
 
+__author__ = "PyARKio"
+__version__ = "1.0.1"
+__email__ = "fedoretss@gmail.com"
+__status__ = "Production"
+
+
 # Active: inactive (dead) since Tue 2019-09-10 11:01:27 EEST; 3s ago
 # Active: active (running) since Tue 2019-09-10 10:15:22 EEST; 43min ago
 print('start')

@@ -375,6 +375,8 @@ class Thread4Speak(QtCore.QThread):
             try:
                 data = self.conn.recv(1000000)
             except ConnectionResetError:
+                # data = conn.recv(1024).decode()
+                # ConnectionResetError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
                 self.emit(QtCore.SIGNAL("newM(QString)"), 'ConnectionResetError')
                 print('ConnectionResetError')
                 # print(self.addr)
@@ -410,13 +412,13 @@ class Thread4Speak(QtCore.QThread):
         # conn.close()
 
 
-class Thread4Accept(QtCore.QThread):
-    def __init__(self, parent=None):
-        QtCore.QThread.__init__(self, parent)
-
-        self.sock = 0
-        self.conn = 0
-        self.addr = 0
+class Thread4Accept(threading.Thread):
+    # Need to identity new connection
+    def __init__(self, callback_handler):
+        self.__handler = callback_handler
+        self.sock = None
+        self.conn = None
+        self.addr = None
 
     def run(self):
         while True:
@@ -428,6 +430,6 @@ class Thread4Accept(QtCore.QThread):
             else:
                 print(self.conn)
                 print(self.addr)
-                self.emit(QtCore.SIGNAL("newAccept(QString)"), '0')
+                self.__handler(self.conn, self.addr)
 
 
