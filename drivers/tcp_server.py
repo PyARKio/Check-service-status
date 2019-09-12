@@ -64,9 +64,10 @@ class Thread4Server(threading.Thread):
         print(accept_conn)
         self.func_connect()
 
-    @staticmethod
-    def speak_error_handler(string_err, who):
+    def speak_error_handler(self, string_err, who):
         print('{} from {}'.format(string_err, who))
+        self.speakThread.pop(who)
+        print(self.speakThread)
 
     @staticmethod
     def speak_handler(string, who):
