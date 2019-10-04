@@ -10,6 +10,12 @@ __email__ = "fedoretss@gmail.com"
 __status__ = "Production"
 
 
+# ===== General Properties =====
+manufacturer_path = '/sys/class/power_supply/battery/manufacturer'
+model_name_path = '/sys/class/power_supply/battery/model_name'
+serial_number_path = '/sys/class/power_supply/battery/serial_number'
+type_path = '/sys/class/power_supply/battery/type'
+# ===== Battery Properties =====
 status_path = '/sys/class/power_supply/battery/status'
 capacity_path = '/sys/class/power_supply/battery/capacity'
 volt_path = '/sys/class/power_supply/battery/voltage_now'
@@ -20,15 +26,94 @@ present_path = '/sys/class/power_supply//battery/present'
 health_path = '/sys/class/power_supply//battery/health'
 
 
+# ===== General Properties =====
+def get_manufacturer():
+    """
+    What:		/sys/class/power_supply/<supply_name>/manufacturer
+    Date:		May 2007
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+            Reports the name of the device manufacturer.
+
+            Access: Read
+            Valid values: Represented as string
+    :return:
+    """
+    response = 0
+    if os.path.exists(manufacturer_path):
+        with open(manufacturer_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+def get_model_name():
+    """
+    What:		/sys/class/power_supply/<supply_name>/model_name
+    Date:		May 2007
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+            Reports the name of the device model.
+
+            Access: Read
+            Valid values: Represented as string
+    :return:
+    """
+    response = 0
+    if os.path.exists(model_name_path):
+        with open(model_name_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+def get_serial_number():
+    """
+    What:		/sys/class/power_supply/<supply_name>/serial_number
+    Date:		January 2008
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+            Reports the serial number of the device.
+
+            Access: Read
+            Valid values: Represented as string
+    :return:
+    """
+    response = 0
+    if os.path.exists(serial_number_path):
+        with open(serial_number_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+def get_type():
+    """
+    What:		/sys/class/power_supply/<supply_name>/type
+    Date:		May 2010
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+            Describes the main type of the supply.
+
+            Access: Read
+            Valid values: "Battery", "UPS", "Mains", "USB"
+    :return:
+    """
+    response = 0
+    if os.path.exists(type_path):
+        with open(type_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+# ===== Battery Properties =====
+
 def get_capacity():
     """
     What:		/sys/class/power_supply/<supply_name>/capacity
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Fine grain representation of battery capacity.
-		    Access: Read
-		    Valid values: 0 - 100 (percent)
+            Fine grain representation of battery capacity.
+            Access: Read
+            Valid values: 0 - 100 (percent)
     """
     response = 0
     if os.path.exists(capacity_path):
@@ -43,11 +128,11 @@ def get_volt():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Reports an instant, single VBAT voltage reading for the battery.
-		    This value is not averaged/smoothed.
+            Reports an instant, single VBAT voltage reading for the battery.
+            This value is not averaged/smoothed.
 
-		    Access: Read
-		    Valid values: Represented in microvolts
+            Access: Read
+            Valid values: Represented in microvolts
     """
     response = 0
     if os.path.exists(volt_path):
@@ -63,11 +148,11 @@ def get_current():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Reports an instant, single IBAT current reading for the battery.
-		    This value is not averaged/smoothed.
+            Reports an instant, single IBAT current reading for the battery.
+            This value is not averaged/smoothed.
 
-		    Access: Read
-		    Valid values: Represented in microamps
+            Access: Read
+            Valid values: Represented in microamps
     """
     response = 0
     if os.path.exists(current_path):
@@ -83,13 +168,13 @@ def get_status():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Represents the charging status of the battery. Normally this
-		    is read-only reporting although for some supplies this can be
-		    used to enable/disable charging to the battery.
+            Represents the charging status of the battery. Normally this
+            is read-only reporting although for some supplies this can be
+            used to enable/disable charging to the battery.
 
-		    Access: Read, Write
-		    Valid values: "Unknown", "Charging", "Discharging",
-			          "Not charging", "Full"
+            Access: Read, Write
+            Valid values: "Unknown", "Charging", "Discharging",
+                    "Not charging", "Full"
     """
     with open(status_path) as f:
         response = f.readline().rstrip()
@@ -102,11 +187,11 @@ def get_technology():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Describes the battery technology supported by the supply.
+            Describes the battery technology supported by the supply.
 
-		    Access: Read
-		    Valid values: "Unknown", "NiMH", "Li-ion", "Li-poly", "LiFe",
-			          "NiCd", "LiMn"
+            Access: Read
+            Valid values: "Unknown", "NiMH", "Li-ion", "Li-poly", "LiFe",
+                    "NiCd", "LiMn"
     """
     response = 0
     if os.path.exists(technology_path):
@@ -121,10 +206,10 @@ def get_temp():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Reports the current TBAT battery temperature reading.
+            Reports the current TBAT battery temperature reading.
 
-		    Access: Read
-		    Valid values: Represented in 1/10 Degrees Celsius
+            Access: Read
+            Valid values: Represented in 1/10 Degrees Celsius
     """
     response = 0
     if os.path.exists(temp_path):
@@ -140,12 +225,12 @@ def get_present():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Reports whether a battery is present or not in the system.
+            Reports whether a battery is present or not in the system.
 
-		    Access: Read
-		    Valid values:
-			    0: Absent
-			    1: Present
+            Access: Read
+            Valid values:
+                0: Absent
+                1: Present
     """
     response = 0
     if os.path.exists(present_path):
@@ -160,13 +245,13 @@ def get_health():
     Date:		May 2007
     Contact:	linux-pm@vger.kernel.org
     Description:
-		    Reports the health of the battery or battery side of charger
-		    functionality.
+            Reports the health of the battery or battery side of charger
+            functionality.
 
-		    Access: Read
-		    Valid values: "Unknown", "Good", "Overheat", "Dead",
-			          "Over voltage", "Unspecified failure", "Cold",
-			          "Watchdog timer expire", "Safety timer expire"
+            Access: Read
+            Valid values: "Unknown", "Good", "Overheat", "Dead",
+                        "Over voltage", "Unspecified failure", "Cold",
+                        "Watchdog timer expire", "Safety timer expire"
     """
     response = 0
     if os.path.exists(health_path):
@@ -177,6 +262,10 @@ def get_health():
 
 if __name__ == '__main__':
     while True:
+        print(get_manufacturer())
+        print(get_model_name())
+        print(get_serial_number())
+        print(get_type())
         print(get_volt())
         print(get_capacity())
         print(get_current())
@@ -185,5 +274,6 @@ if __name__ == '__main__':
         print(get_temp())
         print(get_present())
         print(get_health())
+        print()
         sleep(15)
 
