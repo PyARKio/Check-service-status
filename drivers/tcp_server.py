@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 import threading
 import socket
 from time import sleep
-from drivers import handlers
+import datetime
+import json
+import pickle
 
 
 __author__ = "PyARKio"
@@ -15,7 +17,7 @@ my_ip = socket.gethostbyname_ex(socket.gethostname())[2][0]
 print(my_ip)
 
 ip = '192.168.0.49'
-port = 4040
+port = 4041
 
 
 class Thread4Server(threading.Thread):
@@ -25,6 +27,7 @@ class Thread4Server(threading.Thread):
         self.conn = None
         self.addr = None
         self.flag_run = 0
+        self.info = dict()
 
         self.ip = 0
         self.port = 0
@@ -44,6 +47,7 @@ class Thread4Server(threading.Thread):
 
     def func_connect(self):
         print('Connecting to {}'.format(self.acceptThread.addr))
+        mySocket.send(message)
         self.speakThread[self.acceptThread.addr] = Thread4Speak(self.speak_handler, self.speak_error_handler)
         self.speakThread[self.acceptThread.addr].conn = self.acceptThread.conn
         self.speakThread[self.acceptThread.addr].addr = self.acceptThread.addr
@@ -69,9 +73,10 @@ class Thread4Server(threading.Thread):
         self.speakThread.pop(who)
         print(self.speakThread)
 
-    @staticmethod
-    def speak_handler(string, who):
-        print('{} from {}'.format(string, who))
+    def speak_handler(self, string, who):
+        print('{}: {} from {}'.format(datetime.datetime.now(), json.loads(string), who))
+        self.info[datetime.datetime.now()] = json.loads(string)
+        pickle.dump(self.info, open('battery.io', 'wb'))
 
 
 class Thread4Speak(threading.Thread):

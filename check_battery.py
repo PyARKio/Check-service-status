@@ -23,11 +23,16 @@ type_path = '/sys/class/power_supply/battery/type'
 status_path = '/sys/class/power_supply/battery/status'
 capacity_path = '/sys/class/power_supply/battery/capacity'
 volt_path = '/sys/class/power_supply/battery/voltage_now'
-current_path = '/sys/class/power_supply//battery/current_now'
-technology_path = '/sys/class/power_supply//battery/technology'
-temp_path = '/sys/class/power_supply//battery/temp'
-present_path = '/sys/class/power_supply//battery/present'
-health_path = '/sys/class/power_supply//battery/health'
+current_path = '/sys/class/power_supply/battery/current_now'
+technology_path = '/sys/class/power_supply/battery/technology'
+temp_path = '/sys/class/power_supply/battery/temp'
+present_path = '/sys/class/power_supply/battery/present'
+health_path = '/sys/class/power_supply/battery/health'
+charge_control_limit_path = '/sys/class/power_supply/battery/charge_control_limit'
+charge_control_limit_max_path = '/sys/class/power_supply/battery/charge_control_limit_max'
+charge_control_start_threshold_path = '/sys/class/power_supply/battery/charge_control_start_threshold'
+charge_control_end_threshold_path = '/sys/class/power_supply/battery/charge_control_end_threshold'
+charge_type_path = '/sys/class/power_supply/battery/charge_type'
 
 
 # ===== General Properties =====
@@ -108,7 +113,6 @@ def get_type():
 
 
 # ===== Battery Properties =====
-
 def get_capacity():
     """
     What:		/sys/class/power_supply/<supply_name>/capacity
@@ -264,6 +268,108 @@ def get_health():
     return response
 
 
+def get_charge_control_limit():
+    """
+    What:		/sys/class/power_supply/<supply_name>/charge_control_limit
+    Date:		Oct 2012
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+        Maximum allowable charging current. Used for charge rate
+        throttling for thermal cooling or improving battery health.
+
+        Access: Read, Write
+        Valid values: Represented in microamps
+    """
+    response = 0
+    if os.path.exists(charge_control_limit_path):
+        with open(charge_control_limit_path, 'r') as f:
+            response = f.readline().rstrip()
+            response = float(response) / 1000.0
+    return response
+
+
+def get_charge_control_limit_max():
+    """
+    What:		/sys/class/power_supply/<supply_name>/charge_control_limit_max
+    Date:		Oct 2012
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+        Maximum legal value for the charge_control_limit property.
+
+        Access: Read
+        Valid values: Represented in microamps
+    """
+    response = 0
+    if os.path.exists(charge_control_limit_max_path):
+        with open(charge_control_limit_max_path, 'r') as f:
+            response = f.readline().rstrip()
+            response = float(response) / 1000.0
+    return response
+
+
+def get_charge_control_start_threshold():
+    """
+    What:		/sys/class/power_supply/<supply_name>/charge_control_start_threshold
+    Date:		April 2019
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+        Represents a battery percentage level, below which charging will
+        begin.
+
+        Access: Read, Write
+        Valid values: 0 - 100 (percent)
+    """
+    response = 0
+    if os.path.exists(charge_control_start_threshold_path):
+        with open(charge_control_start_threshold_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+def get_charge_control_end_threshold():
+    """
+    What:		/sys/class/power_supply/<supply_name>/charge_control_end_threshold
+    Date:		April 2019
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+        Represents a battery percentage level, above which charging will
+        stop.
+
+        Access: Read, Write
+        Valid values: 0 - 100 (percent)
+    """
+    response = 0
+    if os.path.exists(charge_control_end_threshold_path):
+        with open(charge_control_end_threshold_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
+def get_charge_type():
+    """
+    What:		/sys/class/power_supply/<supply_name>/charge_type
+    Date:		July 2009
+    Contact:	linux-pm@vger.kernel.org
+    Description:
+        Represents the type of charging currently being applied to the
+        battery. "Trickle", "Fast", and "Standard" all mean different
+        charging speeds. "Adaptive" means that the charger uses some
+        algorithm to adjust the charge rate dynamically, without
+        any user configuration required. "Custom" means that the charger
+        uses the charge_control_* properties as configuration for some
+        different algorithm.
+
+        Access: Read, Write
+        Valid values: "Unknown", "N/A", "Trickle", "Fast", "Standard",
+                "Adaptive", "Custom"
+    """
+    response = None
+    if os.path.exists(charge_type_path):
+        with open(charge_type_path, 'r') as f:
+            response = f.readline().rstrip()
+    return response
+
+
 if __name__ == '__main__':
     host = '192.168.0.49'
     port = 4040
@@ -293,9 +399,14 @@ if __name__ == '__main__':
                               'technology': get_technology(),
                               'temp': get_temp(),
                               'present': get_present(),
-                              'health': get_health()
+                              'health': get_health(),
+                              'charge_control_limit': get_charge_control_limit(),
+                              'charge_control_limit_max': get_charge_control_limit_max(),
+                              'charge_control_start_threshold': get_charge_control_start_threshold(),
+                              'charge_control_end_threshold': get_charge_control_end_threshold(),
+                              'charge_type': get_charge_type()
                               })
 
-        mySocket.send(message.encode())
+        mySocket.send(message)
         sleep(1.5)
 
