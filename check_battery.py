@@ -1,7 +1,9 @@
 # -- coding: utf-8 --
 from __future__ import unicode_literals
 import os
+import socket
 from time import sleep
+import json
 
 
 __author__ = "PyARKio"
@@ -9,6 +11,8 @@ __version__ = "1.0.1"
 __email__ = "fedoretss@gmail.com"
 __status__ = "Production"
 
+
+# https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-power
 
 # ===== General Properties =====
 manufacturer_path = '/sys/class/power_supply/battery/manufacturer'
@@ -261,19 +265,37 @@ def get_health():
 
 
 if __name__ == '__main__':
+    host = '192.168.0.49'
+    port = 4040
+
+    _connecting = True
+    mySocket = socket.socket()
+    print('Connecting...')
+    while _connecting:
+        try:
+            mySocket.connect((host, port))
+        except Exception as err:
+            print(err)
+            sleep(30)
+        else:
+            _connecting = False
+            print('Connect :)')
+
     while True:
-        print(get_manufacturer())
-        print(get_model_name())
-        print(get_serial_number())
-        print(get_type())
-        print(get_volt())
-        print(get_capacity())
-        print(get_current())
-        print(get_status())
-        print(get_technology())
-        print(get_temp())
-        print(get_present())
-        print(get_health())
-        print()
-        sleep(15)
+        message = json.dumps({'manufacturer': get_manufacturer(),
+                              'model_name': get_model_name(),
+                              'serial_number': get_serial_number(),
+                              'type': get_type(),
+                              'volt': get_volt(),
+                              'capacity': get_capacity(),
+                              'current': get_current(),
+                              'status': get_status(),
+                              'technology': get_technology(),
+                              'temp': get_temp(),
+                              'present': get_present(),
+                              'health': get_health()
+                              })
+
+        mySocket.send(message.encode())
+        sleep(1.5)
 
