@@ -372,7 +372,7 @@ def get_charge_type():
 
 if __name__ == '__main__':
     host = '192.168.0.49'
-    port = 4040
+    port = 777
 
     _connecting = True
     mySocket = socket.socket()

@@ -13,11 +13,12 @@ __version__ = "1.0.1"
 __email__ = "fedoretss@gmail.com"
 __status__ = "Production"
 
-my_ip = socket.gethostbyname_ex(socket.gethostname())[2][0]
+my_ip = socket.gethostbyname_ex(socket.gethostname())  # [2][0]
 print(my_ip)
 
-ip = '192.168.0.49'
-port = 4041
+ip_vpn = '10.8.0.8'
+ip_local = '192.168.0.49'
+port = 777
 
 
 class Thread4Server(threading.Thread):
@@ -28,6 +29,7 @@ class Thread4Server(threading.Thread):
         self.addr = None
         self.flag_run = 0
         self.info = dict()
+        # data_s = pickle.load(open('d:\qua\check_service_status\drivers\\battery_discharge.io', 'rb'))
 
         self.ip = 0
         self.port = 0
@@ -47,7 +49,7 @@ class Thread4Server(threading.Thread):
 
     def func_connect(self):
         print('Connecting to {}'.format(self.acceptThread.addr))
-        mySocket.send(message)
+        # mySocket.send(message)
         self.speakThread[self.acceptThread.addr] = Thread4Speak(self.speak_handler, self.speak_error_handler)
         self.speakThread[self.acceptThread.addr].conn = self.acceptThread.conn
         self.speakThread[self.acceptThread.addr].addr = self.acceptThread.addr
@@ -74,9 +76,20 @@ class Thread4Server(threading.Thread):
         print(self.speakThread)
 
     def speak_handler(self, string, who):
-        print('{}: {} from {}'.format(datetime.datetime.now(), json.loads(string), who))
-        self.info[datetime.datetime.now()] = json.loads(string)
-        pickle.dump(self.info, open('battery.io', 'wb'))
+        try:
+            print('{}: {} from {}'.format(datetime.datetime.now(), json.loads(string), who))
+        except Exception as err:
+            print('{}\n{}\n{}'.format(datetime.datetime.now(), err, string))
+
+        try:
+            self.info[datetime.datetime.now()] = json.loads(string)
+        except Exception as err:
+            print('{}\n{}\n{}'.format(datetime.datetime.now(), err, string))
+
+        try:
+            pickle.dump(self.info, open('battery_discharge.io', 'wb'))
+        except Exception as err:
+            print('{}\n{}\n{}'.format(datetime.datetime.now(), err, string))
 
 
 class Thread4Speak(threading.Thread):
@@ -146,7 +159,7 @@ class Thread4Accept(threading.Thread):
 
 if __name__ == '__main__':
     serverThread = Thread4Server()
-    serverThread.ip = ip
+    serverThread.ip = ip_vpn
     serverThread.port = port
     serverThread.flag_run = 1
     serverThread.start()
