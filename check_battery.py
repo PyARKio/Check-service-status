@@ -371,7 +371,8 @@ def get_charge_type():
 
 
 if __name__ == '__main__':
-    host = '192.168.0.49'
+    # host = '192.168.0.49'
+    host = '10.8.0.8'
     port = 777
 
     _connecting = True
