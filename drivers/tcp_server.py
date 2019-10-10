@@ -6,6 +6,7 @@ from time import sleep
 import datetime
 import json
 import pickle
+from drivers.log_settings import log
 
 
 __author__ = "PyARKio"
@@ -16,17 +17,17 @@ __status__ = "Production"
 my_ip = socket.gethostbyname_ex(socket.gethostname())  # [2][0]
 print(my_ip)
 
-ip_vpn = '10.8.0.8'
+ip_vpn = '10.8.0.5'
 ip_local = '192.168.0.49'
-port = 777
+port = 1717
 
 
 class Thread4Server(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.sock = None
-        self.conn = None
-        self.addr = None
+        self.connection = None
+        self.address = None
         self.flag_run = 0
         self.info = dict()
         # data_s = pickle.load(open('d:\qua\check_service_status\drivers\\battery_discharge.io', 'rb'))
@@ -39,7 +40,7 @@ class Thread4Server(threading.Thread):
 
     def run(self):
         print('START SERVER')
-        self.sock = socket.socket()
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.ip, int(self.port)))
         self.sock.listen(10)
         self.acceptThread.sock = self.sock
@@ -48,14 +49,14 @@ class Thread4Server(threading.Thread):
             sleep(0.01)
 
     def func_connect(self):
-        print('Connecting to {}'.format(self.acceptThread.addr))
+        print('Connecting to {}'.format(self.acceptThread.address))
         # mySocket.send(message)
-        self.speakThread[self.acceptThread.addr] = Thread4Speak(self.speak_handler, self.speak_error_handler)
-        self.speakThread[self.acceptThread.addr].conn = self.acceptThread.conn
-        self.speakThread[self.acceptThread.addr].addr = self.acceptThread.addr
+        self.speakThread[self.acceptThread.address] = Thread4Speak(self.speak_handler, self.speak_error_handler)
+        self.speakThread[self.acceptThread.address].conn = self.acceptThread.connection
+        self.speakThread[self.acceptThread.address].addr = self.acceptThread.address
 
-        self.speakThread[self.acceptThread.addr].flag_run = 1
-        self.speakThread[self.acceptThread.addr].start()
+        self.speakThread[self.acceptThread.address].flag_run = 1
+        self.speakThread[self.acceptThread.address].start()
 
         print(self.speakThread)
 
@@ -98,41 +99,41 @@ class Thread4Speak(threading.Thread):
         threading.Thread.__init__(self)
         self.__handler = callback_handler
         self.__err_handler = error_callback_handler
-        self.conn = None
-        self.addr = None
+        self.connection = None
+        self.address = None
         self.flag_run = 0
 
     def run(self):
-        print('Start for {}'.format(self.addr))
+        print('Start for {}'.format(self.address))
         while self.flag_run:
             try:
-                data = self.conn.recv(1000000)
+                data = self.connection.recv(1000000)
             except ConnectionResetError:
                 # data = conn.recv(1024).decode()
                 # ConnectionResetError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
-                self.__err_handler('ConnectionResetError', self.addr)
-                self.conn.close()
+                self.__err_handler('ConnectionResetError', self.address)
+                self.connection.close()
                 self.flag_run = 0
                 break
             except Exception as err:
-                self.__err_handler(str(err), self.addr)
-                self.conn.close()
+                self.__err_handler(str(err), self.address)
+                self.connection.close()
                 self.flag_run = 0
                 break
             else:
                 if not data:
-                    self.__err_handler('No data', self.addr)
-                    self.conn.close()
+                    self.__err_handler('No data', self.address)
+                    self.connection.close()
                     self.flag_run = 0
                     break
                 elif 'close' in data.decode('cp1251'):
-                    self.__handler('close_ok', self.addr)
-                    self.conn.close()
+                    self.__handler('close_ok', self.address)
+                    self.connection.close()
                     self.flag_run = 0
                     break
                 else:
                     udata = data.decode('cp1251')
-                    self.__handler(udata, self.addr)
+                    self.__handler(udata, self.address)
 
 
 class Thread4Accept(threading.Thread):
@@ -142,19 +143,24 @@ class Thread4Accept(threading.Thread):
         self.__handler = callback_handler
         self.__err_handler = error_callback_handler
         self.sock = None
-        self.conn = None
-        self.addr = None
+        self.connection = None
+        self.address = None
 
     def run(self):
         while True:
             try:
-                self.conn, self.addr = self.sock.accept()
+                self.connection, self.address = self.sock.accept()
             except Exception as err:
                 self.__err_handler('Error accept: {}'.format(err))
                 break
             else:
-                print("Connection from: " + str(self.addr))
-                self.__handler(self.conn, self.addr)
+                log.info("Connection from: " + str(self.address))
+                # self.check_new_acceptance()
+                self.__handler(self.connection, self.address)
+
+    def check_new_acceptance(self):
+        log.info('ask from connection: {}, address: {} password'.format(self.connection, self.address))
+        self.connection.send(bytes('Password', encoding='UTF-8'))
 
 
 if __name__ == '__main__':

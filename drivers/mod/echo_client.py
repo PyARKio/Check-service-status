@@ -3,20 +3,19 @@ import socket
 
 def main():
         host = '192.168.0.49'
-        port = 4040
+        port = 1717
 
-        mySocket = socket.socket()
+        mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         mySocket.connect((host, port))
 
-        message = input(" -> ")
+        # message = input(" -> ")
 
-        while message != 'q':
-                mySocket.send(message.encode())
-                data = mySocket.recv(1024).decode()
+        # while message != 'q':
+                # mySocket.send(message.encode())
+        data = mySocket.recv(1024).decode()
+        print('Received from server: ' + data)
 
-                print('Received from server: ' + data)
-
-                message = input(" -> ")
+                # message = input(" -> ")
 
         mySocket.close()
 

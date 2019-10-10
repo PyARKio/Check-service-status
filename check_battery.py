@@ -376,7 +376,7 @@ if __name__ == '__main__':
     port = 777
 
     _connecting = True
-    mySocket = socket.socket()
+    mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('Connecting...')
     while _connecting:
         try:
